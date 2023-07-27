@@ -73,7 +73,7 @@ void rr()
             temp->ct = cnt;
             cout << temp->pid << " : " << temp->ct << endl;
         }
-        if (temp->bt < tq)
+        else
         {
             cnt += temp->bt;
             temp->bt = 0;
