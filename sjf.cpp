@@ -50,7 +50,6 @@ void sjf()
     int num;
     cin >> num;
     vector<process> r;
-    vector<process> final;
 
     for (int i = 0; i < num; i++)
     {
@@ -71,23 +70,19 @@ void sjf()
         int avgBurst = 0;
         int shortest = INT_MAX;
         process *shortProcess = nullptr;
-        process *current;
-        process *prev;
-
         for (int i = 0; i <= end; i++)
         {
-            if (r[i].bt <= shortest && r[i].bt > 0)
+            if (r[i].bt < shortest && r[i].bt > 0)
             {
                 shortest = r[i].bt;
                 shortProcess = &r[i];
-                final.push_back(r[i]);
             }
         }
         if (shortProcess->bt != 0 && shortProcess)
         {
-            shortProcess->bt -= 1;
-            shortProcess->ct += cnt;
             cnt++;
+            shortProcess->bt -= 1;
+            shortProcess->ct = cnt;
         }
 
         for (int i = 0; i < r.size(); i++)
@@ -96,7 +91,10 @@ void sjf()
         }
 
         // cout << "atTracker : " << atTracker << endl;
-
+        if (r[end + 1].at - atTracker == 1)
+        {
+            end++;
+        }
         if (end >= r.size())
         {
             end = r.size() - 1;
@@ -105,10 +103,7 @@ void sjf()
         {
             flag = false;
         }
-        if (r[end + 1].at - atTracker == 1)
-        {
-            end++;
-        }
+                
         atTracker++;
         // cout << end << endl;
     }
@@ -120,9 +115,9 @@ void sjf()
     //     r[i].getInfo();
     // }
 
-    for (int i = 0; i < final.size(); i++)
+    for (int i = 0; i < r.size(); i++)
     {
-        cout << final[i].pid << " ";
+        cout << r[i].ct << " ";
     }
 }
 
