@@ -33,9 +33,9 @@ public:
 
     void getInfo()
     {
-        cout << "Arrival time is : " << this->at << endl;
-        cout << "Burst time is : " << this->bt << endl;
-        cout << "Priority is : " << this->pt << endl;
+        // cout << "Arrival time is : " << this->at << endl;
+        // cout << "Burst time is : " << this->bt << endl;
+        // cout << "Priority is : " << this->pt << endl;
         cout << "Process id : " << this->pid << endl;
         cout << "completion time : " << this->ct << endl;
         cout << endl;
@@ -44,7 +44,7 @@ public:
 
 void priority()
 {
-
+    queue<process*> rt;
     int n;
     cout << "Enter the total number of processes : ";
     cin >> n;
@@ -95,28 +95,25 @@ void priority()
     }
     int cnt = 0;
     int avgBurst = 0;
+    rt.push(arr[0]);
     while (flag)
     {
-        process *shortest;
+        process *shortest = new process;
+        shortest->pt = INT_MAX;
 
         for (int i = 1; i < end; i++)
         {
-            if (i == 1)
+          
+            if (arr[i]->pt < shortest->pt && arr[i]->bt != 0)
             {
                 shortest = arr[i];
             }
-            else
-            {
-                if (arr[i]->pt < shortest->pt && arr[i]->bt != 0)
-                {
-                    shortest = arr[i];
-                }
-            }
-            avgBurst += arr[i]->bt;
         }
-
-        shortest->ct = shortest->ct + arr[cnt]->ct;
+        process *temp = rt.front();
+        rt.pop();
+        shortest->ct = shortest->bt + temp->ct;
         shortest->bt = 0;
+        rt.push(shortest);
         // cout << shortest->pid << " : " << shortest->ct << endl;
         cnt++;
         if (shortest->ct > n)
@@ -127,7 +124,7 @@ void priority()
         {
             end = shortest->ct;
         }
-        if (avgBurst == 0)
+        if (cnt==n)
         {
             flag = false;
         }
