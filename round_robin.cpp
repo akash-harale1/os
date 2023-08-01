@@ -45,6 +45,8 @@ void rr()
 {
     queue<process *> qu;
     int tq;
+    double averageTAT=0;
+    double averageWT=0;
 
     vector<process *> v;
     cout << "Enter total number of processes : ";
@@ -60,7 +62,7 @@ void rr()
         v.push_back(temp);
         qu.push(temp);
     }
-
+    cout<<"Gantt chart : "<<endl;
     bool flag = true;
     while (!qu.empty())
     {
@@ -86,10 +88,12 @@ void rr()
         }
     }
 
-    // for (int i = 0; i < v.size(); i++)
-    // {
-    //     cout << v[i]->ct << " ";
-    // }
+    for (int i = 0; i < v.size(); i++)
+    {
+        averageTAT += v[i]->ct - v[i]->at;
+    }
+    cout<<endl;
+    cout<<"Average tat : "<<averageTAT/v.size();
 }
 
 int main()
