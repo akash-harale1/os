@@ -48,6 +48,8 @@ void sjf()
     cout << "Enter number of processes : ";
 
     int num;
+    double averageT;
+    double averageW;
     cin >> num;
     vector<process> r;
 
@@ -64,6 +66,8 @@ void sjf()
     int end = 0;
     int atTracker = 0;
     int cnt = 0;
+
+    cout<<"Gantt chart : "<<endl;
 
     while (flag)
     {
@@ -83,6 +87,7 @@ void sjf()
             cnt++;
             shortProcess->bt -= 1;
             shortProcess->ct = cnt;
+            cout<<shortProcess->pid<<" : "<<shortProcess->ct<<endl;
         }
 
         for (int i = 0; i < r.size(); i++)
@@ -117,8 +122,10 @@ void sjf()
 
     for (int i = 0; i < r.size(); i++)
     {
-        cout << r[i].ct << " ";
+        averageT += r[i].ct - r[i].at;
     }
+
+    cout<<"Average turnaround time : "<<averageT;
 }
 
 int main()
