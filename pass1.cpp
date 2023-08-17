@@ -1,102 +1,156 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
-
-
-class ic{
-
-    string cl;
-    int code;
-    vector<pair<string,int>> rslt;
-    public:
-    ic()
-    {
-        cl="";
-        code = 0;
-    }
-
-    ic(string cl, int code)
-    {
-        this->cl = cl;
-        this->code = code;
-        rslt.push_back(make_pair(this->cl,this->code));
-    }
-
-    void diplay()
-    {
-        for(auto it : rslt)
-        {
-            cout<<"("<<it.first<<","<<it.second<<")"<<endl;
-        }
-    }
-
-};
-
 
 void readF()
 {
-    map<string, pair<string,int>> mot;
-    map<string,int> cc;
-    vector<string> imp = {"ADD","SUB","STOP","MULT","MOVER","MOVEM","COMP","BC","DIV","READ","PRINT"};
-    vector<string> ad = {"START","END","ORIGIN","EQU","LTORG"};
-    vector<string> dl = {"DC","DS"};
-    vector<string> c = {"LT","LE","EQ","GT","GE","ANY"};
+    map<string, pair<string, int>> mot; // machine operational table
+
+    vector<string> imp = {"STOP", "ADD", "SUB", "MULT", "MOVER", "MOVEM", "COMP", "BC", "DIV", "READ", "PRINT"}; // imperative instructions
+    vector<string> ad = {"START", "END", "ORIGIN", "EQU", "LTORG"};                                              // assembler directives
+    vector<string> dl = {"DC", "DS"};                                                                                // declarative statements
+    vector<string> c = {"LT", "LE", "EQ", "GT", "GE", "ANY"};                                                    // compare statements
+    vector<string> reg = {"AREG", "BREG", "CREG", "DREG"};                                                       // registers
+    map<string, string> lt;                                                                                      // literal table
+    map<string, pair<int, int>> st;                                                                              // symbol table
+
+    // assigning the different instructions their codes and storing them in mot
     for (int i = 0; i < imp.size(); i++)
     {
-       mot[imp[i]] = make_pair("IS",i);                        
+        mot[imp[i]] = make_pair("IS", i);
     }
 
     for (int i = 0; i < ad.size(); i++)
     {
-       mot[ad[i]] = make_pair("AD",i);
+        mot[ad[i]] = make_pair("AD", i);
     }
 
     for (int i = 0; i < dl.size(); i++)
     {
-       mot[dl[i]] = make_pair("DL",i);
+        mot[dl[i]] = make_pair("DL", i);
     }
 
-    for(int i=0;i<c.size();i++)
+    for (int i = 0; i < reg.size(); i++)
     {
-        cc[c[i]] = i+1;
+        mot[reg[i]] = make_pair("reg", (i + 1));
     }
-   
-    // for(auto it:mot)
-    // {
-    //     cout<<it.first<<" "<<it.second.first<<" "<<it.second.second;
-    //     cout<<endl;
-    // }
 
-    map<string,string> ans;
+    // main logic
 
-    fstream myfile;
-    myfile.open("a.asm",ios::in);
-    string temp;
-    ic obj;
-    while (getline(myfile,temp))
+    fstream myfile("test.asm", ios::in);
+    string word;
+
+    ofstream ic("ic.txt");
+    int lc; // location counter
+    int stcnt = 0;
+
+    while (getline(myfile, word))
     {
-        vector<string> temp2;
-        string temp3;
-        for(auto it:temp)
+        vector<string> ins;
+        string temp;
+        for (int i = 0; i < word.length(); i++)
         {
-            if(it!=' ')
+            if (word[i] != ' ')
             {
-                temp3+=it;
+                temp += word[i];
             }
             else
             {
-                temp2.push_back(temp3);
-                temp3 = "";
+                ins.push_back(temp);
+                temp = "";
+            }
+        }
+        ins.push_back(temp);
+
+        // for start
+        for (int i = 0; i < ins.size(); i++)
+        {
+            if (ins[i] == "START")
+            {
+                lc = stoi(ins[i + 1]);
+                auto it = mot.find(ins[i]);
+                ic << "(" << it->second.first << " " << it->second.second << "),(C," << lc << ")\n";
+                ins.clear();
+                break;
             }
         }
 
-        for(auto it:temp2)
+        // for others
+        if (ins.size() != 0)
         {
-            cout<<it<<" ";
+            for (int i = 0; i < ins.size(); i++)
+            {
+                auto it = mot.find(ins[i]);
+                if (it != mot.end())
+                {
 
+                    if (it->second.first != "reg")
+                    {
+                        string temp = ins[i + 1]; // if the next of instruction is a symbol
+                        auto symbol = st.find(temp);
+                        if (symbol != st.end()) // if that symbol is already in the symbol table
+                        {
+                            ic << "(" << it->second.first << "," << it->second.second << ") "
+                               << "(S," << symbol->second.first << ")";
+                        }
+                        else
+                        {
+                            ++stcnt;
+                            st[temp] = make_pair(stcnt, 0);
+                            ic << "(" << it->second.first << "," << it->second.second << ") "
+                               << "(S," << st[temp].first << ")";
+                        }
+                    }
+                    else if (it->second.first == "reg")
+                    {
+                        ic << "(" << it->second.second << ") ";
+                        string temp = ins[ins.size() - 1];
+                        if (temp[0] != '=') // if the next of instruction isn't a literal
+                        {
+
+                            auto symbol = st.find(temp);
+                            if (symbol != st.end()) // if a symbol is already present in the symbol table
+                            {
+                                ic << "("
+                                   << "S," << symbol->second.first
+                                   << ")\n";
+                            }
+                            else // if a symbol is not present
+                            {
+                                ++stcnt;
+                                st[temp] = make_pair(stcnt, 0);
+                                ic
+                                    << "("
+                                    << "S," << st[temp].first
+                                    << ")\n";
+                            }
+                        }
+                        else
+                        {
+                            ic << "("
+                               << "L"
+                               << ")\n";
+                        }
+                    }
+                }
+                else
+                {
+                    stcnt++;
+                    if (ins[i][0] != '=')
+                        st[ins[i]] = make_pair(stcnt, 0);
+                }
+            }
+            ic << "\n";
         }
-        cout<<endl;
+        // if (cnt == 4)
+        // {
+        //     break;
+        // }
     }
-    
+
+    for (auto it : st)
+    {
+        cout << it.first << " " << it.second.first << endl;
+    }
 }
 int main()
 {
