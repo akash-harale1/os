@@ -1,6 +1,9 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+
+// updates - check the type of first element of vector and add if else according to that
+
 void readF()
 {
     map<string, pair<string, int>> mot; // machine operational table
@@ -36,7 +39,7 @@ void readF()
 
     // main logic
 
-    fstream myfile("test.asm", ios::in);
+    fstream myfile("a.asm", ios::in);
     string word;
 
     ofstream ic("ic.txt");
@@ -47,6 +50,8 @@ void readF()
     {
         vector<string> ins;
         string temp;
+
+        //splitting each line and separating each word
         for (int i = 0; i < word.length(); i++)
         {
             if (word[i] != ' ')
@@ -72,12 +77,15 @@ void readF()
                 ins.clear();
                 break;
             }
+            break;
         }
 
-        // for others
+        
+
+        // // for others
         if (ins.size() != 0)
         {
-            for (int i = 0; i < ins.size(); i++)
+            for (int i = 0; i < ins.size()-1; i++)
             {
                 auto it = mot.find(ins[i]);
                 if (it != mot.end())
@@ -85,73 +93,81 @@ void readF()
 
                     if (it->second.first != "reg")
                     {
-                        string temp = ins[i + 1]; // if the next of instruction is a symbol
-                        auto symbol = st.find(temp);
+                        // if the next of instruction is a symbol
+                        string test = "";
+                        test = ins[i+1];
+                        cout<<test<<"\n";
+                        // cout<<test<<endl;
+                        
+                        auto symbol = st.find(test);
                         if (symbol != st.end()) // if that symbol is already in the symbol table
                         {
                             ic << "(" << it->second.first << "," << it->second.second << ") "
-                               << "(S," << symbol->second.first << ")";
+                               << "(S "<< symbol->second.first << ")";
                         }
                         else
                         {
                             ++stcnt;
                             st[temp] = make_pair(stcnt, 0);
                             ic << "(" << it->second.first << "," << it->second.second << ") "
-                               << "(S," << st[temp].first << ")";
+                               << "(S " << st[temp].first << ")";
                         }
                     }
-                    else if (it->second.first == "reg")
-                    {
-                        ic << "(" << it->second.second << ") ";
-                        string temp = ins[ins.size() - 1];
-                        if (temp[0] != '=') // if the next of instruction isn't a literal
-                        {
+                    // else if (it->second.first == "reg")
+                    // {
+                    //     ic << "(" << it->second.second << ") ";
+                    //     string temp = "";
+                    //     temp = ins[ins.size() - 1];
+                    //     cout<<temp<<"\n";
+                        // if (temp[0] != '=') // if the next of instruction isn't a literal
+                        // {
 
-                            auto symbol = st.find(temp);
-                            if (symbol != st.end()) // if a symbol is already present in the symbol table
-                            {
-                                ic << "("
-                                   << "S," << symbol->second.first
-                                   << ")\n";
-                            }
-                            else // if a symbol is not present
-                            {
-                                ++stcnt;
-                                st[temp] = make_pair(stcnt, 0);
-                                ic
-                                    << "("
-                                    << "S," << st[temp].first
-                                    << ")\n";
-                            }
-                        }
-                        else
-                        {
-                            ic << "("
-                               << "L"
-                               << ")\n";
-                        }
+                        //     auto symbol = st.find(temp);
+                        //     if (symbol != st.end()) // if a symbol is already present in the symbol table
+                        //     {
+                        //         ic << "("
+                        //            << "S " << symbol->second.first
+                        //            << ")\n";
+                        //     }
+                        //     else // if a symbol is not present
+                        //     {
+                        //         ++stcnt;
+                        //         st[temp] = make_pair(stcnt, 0);
+                        //         ic
+                        //             << "("
+                        //             << "S " << st[temp].first
+                        //             << ")\n";
+                        //     }
+                        // }
+                        // else
+                        // {
+                        //     ic << "("
+                        //        << "L"
+                        //        << ")\n";
+                        // }
                     }
                 }
-                else
-                {
-                    stcnt++;
-                    if (ins[i][0] != '=')
-                        st[ins[i]] = make_pair(stcnt, 0);
-                }
+                // else
+                // {
+                //     stcnt++;
+                //     if (ins[i][0] != '=')
+                //         st[ins[i]] = make_pair(stcnt, 0);
+                // }
             }
             ic << "\n";
-        }
-        // if (cnt == 4)
-        // {
-        //     break;
         // }
+//         // if (cnt == 4)
+//         // {
+//         //     break;
+//         // }
     }
 
-    for (auto it : st)
-    {
-        cout << it.first << " " << it.second.first << endl;
-    }
+    // for (auto it : st)
+    // {
+    //     cout << it.first << " " << it.second.first << endl;
+    // }
 }
+
 int main()
 {
     readF();
